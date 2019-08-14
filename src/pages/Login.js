@@ -1,17 +1,34 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   KeyboardAvoidingView,
   TextInput,
   Text,
   TouchableOpacity,
   StyleSheet,
+  AsyncStorage,
   Image
 } from "react-native";
 import logo from "../assets/logo.png";
 import { Platform } from "@unimodules/core";
-// import { Container } from './styles';
+import api from "../services/api";
 
-export default () => {
+export default ({ navigation }) => {
+  const [user, setUser] = useState("");
+
+  useEffect(() => {
+    AsyncStorage.getItem("user").then(user => {
+      if (user) {
+        navigation.navigate("Main", { user });
+      }
+    });
+  }, []);
+
+  handleLogin = async () => {
+    const response = await api.post("/devs", { username: user });
+    const { _id } = response.data;
+    await AsyncStorage.setItem("user", _id);
+    navigation.navigate("Main", { _id });
+  };
   return (
     <KeyboardAvoidingView
       enabled={Platform.OS === "ios"}
@@ -19,14 +36,17 @@ export default () => {
       style={styles.container}
     >
       <Image source={logo} />
+
       <TextInput
         autoCapitalize="none"
         autoCorrect={false}
         placeholder="Digite o seu usário do GitHub"
         style={styles.input}
         placeholderTextColor="#999"
+        value={user}
+        onChangeText={setUser}
       />
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Enviar</Text>
       </TouchableOpacity>
     </KeyboardAvoidingView>
