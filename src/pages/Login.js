@@ -1,6 +1,6 @@
 import React from "react";
 import {
-  View,
+  KeyboardAvoidingView,
   TextInput,
   Text,
   TouchableOpacity,
@@ -8,11 +8,16 @@ import {
   Image
 } from "react-native";
 import logo from "../assets/logo.png";
+import { Platform } from "@unimodules/core";
 // import { Container } from './styles';
 
 export default () => {
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      enabled={Platform.OS === "ios"}
+      behavior={"padding"}
+      style={styles.container}
+    >
       <Image source={logo} />
       <TextInput
         autoCapitalize="none"
@@ -24,7 +29,7 @@ export default () => {
       <TouchableOpacity style={styles.button}>
         <Text style={styles.buttonText}>Enviar</Text>
       </TouchableOpacity>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
