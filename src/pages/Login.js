@@ -28,7 +28,7 @@ export default ({ navigation }) => {
     const response = await api.post("/devs", { username: user });
     const { _id } = response.data;
     await AsyncStorage.setItem("user", _id);
-    navigation.navigate("Main", { _id });
+    navigation.navigate("Main", { user: _id });
   };
   return (
     <KeyboardAvoidingView
