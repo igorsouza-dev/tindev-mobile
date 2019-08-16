@@ -10,15 +10,19 @@ import {
   AsyncStorage,
   Alert
 } from "react-native";
+import io from 'socket.io-client';
+
 import logo from "../assets/logo.png";
 import like from "../assets/like.png";
 import dislike from "../assets/dislike.png";
+import itsamatch from '../assets/itsamatch.png';
+
 import api from "../services/api";
 
 export default ({ navigation }) => {
   const id = navigation.getParam("user");
   const [users, setUsers] = useState([]);
-
+  const [matchDev, setMatchDev] = useState(null);
   useEffect(() => {
     const loadUsers = () => {
       api.get("/devs", {
@@ -31,7 +35,16 @@ export default ({ navigation }) => {
     };
     loadUsers();
   }, [id]);
-
+  
+  useEffect(() => {
+    const socket = io('http://10.5.1.200:8080', {
+        query: { user: id }
+    });
+    socket.on('match', dev => {
+        setMatchDev(dev);
+    });
+    
+}, [id]);
   handleLike = () => {
     const [ user, ...otherUsers ] = users;
     api.post(`/devs/${user._id}/likes`, null, {
@@ -97,6 +110,19 @@ export default ({ navigation }) => {
           <TouchableOpacity style={styles.button} onPress={handleLike}>
             <Image source={like} />
           </TouchableOpacity>
+        </View>
+      )}
+      { matchDev && (
+        <View style={styles.matchContainer}>
+          <Image style={styles.matchImage} source={itsamatch} />
+          <Image style={styles.matchAvatar} source={{ uri: matchDev.avatar}}/>
+          <Text style={styles.matchName} >{ matchDev.name }</Text>
+          <Text style={styles.matchBio} >{ matchDev.bio }</Text>
+
+          <TouchableOpacity onPress={() => setMatchDev(null)}>
+            <Text style={styles.closeMatch}>FECHAR</Text>
+          </TouchableOpacity>
+
         </View>
       )}
       
@@ -179,5 +205,42 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 24,
     color: "#999"
+  },
+  matchContainer: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  matchImage: {
+    height: 60,
+    resizeMode: 'contain'
+  },
+  matchAvatar: {
+    width: 160,
+    height: 160,
+    borderRadius: 80,
+    borderWidth: 5,
+    borderColor: '#fff',
+    marginVertical: 30,
+  },
+  matchName: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  matchBio: {
+    marginTop: 10,
+    fontSize: 16,
+    color: 'rgba(255,255,255, 0.8)',
+    textAlign: 'center',
+    paddingHorizontal: 30,
+  },
+  closeMatch: {
+    fontSize: 16,
+    color: 'rgba(255,255,255, 0.8)',
+    textAlign: 'center',
+    marginTop: 30,
+    fontWeight: 'bold',
   }
 });
