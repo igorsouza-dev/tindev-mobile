@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
+
 import {
   SafeAreaView,
   View,
   Image,
   StyleSheet,
   Text,
-  TouchableOpacity
+  TouchableOpacity,
+  AsyncStorage,
+  Alert
 } from "react-native";
 import logo from "../assets/logo.png";
 import like from "../assets/like.png";
@@ -17,30 +20,41 @@ export default ({ navigation }) => {
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
-    const loadUsers = async () => {
-      const response = await api.get("/devs", {
-        headers: { id }
+    const loadUsers = () => {
+      api.get("/devs", {
+        headers: { user: id }
+      }).then(response => {
+        setUsers(response.data);
+      }).catch(error => {
+        Alert.alert('Não foi possível buscar usuários');
       });
-      setUsers(response.data);
     };
     loadUsers();
   }, [id]);
 
-  const handleLike = async id => {
+  handleLike = async id => {
     const response = await api.post(`/devs/${id}/likes`, null, {
       headers: { user: id }
     });
     setUsers(users.filter(user => user._id !== id));
   };
-  const handleDislike = async id => {
+  handleDislike = async id => {
     const response = await api.post(`/devs/${id}/dislikes`, null, {
       headers: { user: id }
     });
     setUsers(users.filter(user => user._id !== id));
   };
+
+  handleLogout = async () => {
+    await AsyncStorage.clear();
+    navigation.navigate('Login');
+  }
+  
   return (
     <SafeAreaView style={styles.container}>
-      <Image source={logo} style={styles.logo} />
+      <TouchableOpacity onPress={handleLogout}>
+        <Image source={logo} style={styles.logo} />
+      </TouchableOpacity>
       <View style={styles.cardsContainer}>
         {users.length ? (
           users.map((user, index) => (

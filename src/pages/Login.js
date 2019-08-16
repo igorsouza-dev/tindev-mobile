@@ -7,7 +7,8 @@ import {
   StyleSheet,
   Platform,
   AsyncStorage,
-  Image
+  Image,
+  Alert
 } from "react-native";
 import logo from "../assets/logo.png";
 
@@ -24,11 +25,21 @@ export default ({ navigation }) => {
     });
   }, []);
 
-  handleLogin = async () => {
-    const response = await api.post("/devs", { username: user });
-    const { _id } = response.data;
-    await AsyncStorage.setItem("user", _id);
-    navigation.navigate("Main", { user: _id });
+  handleLogin = () => {
+    const response = api.post("/devs", { username: user }).then(response =>{
+      const { _id } = response.data;
+      if( _id ) {
+        AsyncStorage.setItem("user", _id).then(()=>{
+          navigation.navigate("Main", { user: _id });
+        });
+        
+      } else {
+        Alert.alert('Usuário inexistente!');
+      }
+    }).catch(error => {
+        Alert.alert('Não foi possível buscar usuário!');
+    });
+    
   };
   return (
     <KeyboardAvoidingView
