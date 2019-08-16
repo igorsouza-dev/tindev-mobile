@@ -5,11 +5,12 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
+  Platform,
   AsyncStorage,
   Image
 } from "react-native";
 import logo from "../assets/logo.png";
-import { Platform } from "@unimodules/core";
+
 import api from "../services/api";
 
 export default ({ navigation }) => {
