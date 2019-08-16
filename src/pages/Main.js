@@ -26,23 +26,32 @@ export default ({ navigation }) => {
       }).then(response => {
         setUsers(response.data);
       }).catch(error => {
-        Alert.alert('Não foi possível buscar usuários');
+        Alert.alert('An error ocurred while trying to fetch the devs.');
       });
     };
     loadUsers();
   }, [id]);
 
-  handleLike = async id => {
-    const response = await api.post(`/devs/${id}/likes`, null, {
+  handleLike = () => {
+    const [ user, ...otherUsers ] = users;
+    api.post(`/devs/${user._id}/likes`, null, {
       headers: { user: id }
+    }).then(response => {
+      setUsers(otherUsers);
+    }).catch(error => {
+      Alert.alert('It was not possible to give the like to this person.');
     });
-    setUsers(users.filter(user => user._id !== id));
+    
   };
-  handleDislike = async id => {
-    const response = await api.post(`/devs/${id}/dislikes`, null, {
+  handleDislike = () => {
+    const [ user, ...otherUsers ] = users;
+    api.post(`/devs/${user._id}/dislikes`, null, {
       headers: { user: id }
+    }).then(response => {
+      setUsers(otherUsers);
+    }).catch(error => {
+      Alert.alert('It was not possible to give the dislike to this person.');
     });
-    setUsers(users.filter(user => user._id !== id));
   };
 
   handleLogout = async () => {
@@ -80,14 +89,17 @@ export default ({ navigation }) => {
           <Text style={styles.empty}> Acabou :(</Text>
         )}
       </View>
-      <View style={styles.buttonsContainer}>
-        <TouchableOpacity style={styles.button} onPress={handleDislike}>
-          <Image source={dislike} />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={handleLike}>
-          <Image source={like} />
-        </TouchableOpacity>
-      </View>
+      { users.length > 0 && (
+        <View style={styles.buttonsContainer}>
+          <TouchableOpacity style={styles.button} onPress={handleDislike}>
+            <Image source={dislike} />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={handleLike}>
+            <Image source={like} />
+          </TouchableOpacity>
+        </View>
+      )}
+      
     </SafeAreaView>
   );
 };

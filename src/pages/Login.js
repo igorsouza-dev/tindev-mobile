@@ -34,10 +34,10 @@ export default ({ navigation }) => {
         });
         
       } else {
-        Alert.alert('Usuário inexistente!');
+        Alert.alert("User doesn't exists!");
       }
     }).catch(error => {
-        Alert.alert('Não foi possível buscar usuário!');
+        Alert.alert('An error ocurred while trying to fetch the user data.');
     });
     
   };
@@ -52,7 +52,7 @@ export default ({ navigation }) => {
       <TextInput
         autoCapitalize="none"
         autoCorrect={false}
-        placeholder="Digite o seu usário do GitHub"
+        placeholder="Insert your GitHub username."
         style={styles.input}
         placeholderTextColor="#999"
         value={user}
